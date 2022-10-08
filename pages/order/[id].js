@@ -25,6 +25,7 @@ import { getError } from "../../utils/error";
 import axios from "axios";
 import { usePayPalScriptReducer, PayPalButtons } from "@paypal/react-paypal-js";
 import { useSnackbar } from "notistack";
+import Promise from "Promise";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -39,7 +40,7 @@ const reducer = (state, action) => {
   }
 };
 
-const Order = ({ params }) => {
+function Order({ params }) {
   const orderId = params.id;
   const classes = useStyles();
   const router = useRouter();
@@ -67,7 +68,7 @@ const Order = ({ params }) => {
     deliveredAt,
   } = order;
   const [{ isPending }, payPalDispatch] = usePayPalScriptReducer();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   useEffect(() => {
     if (!userInfo) {
       router.push("/login");
@@ -331,10 +332,10 @@ const Order = ({ params }) => {
       )}
     </Layout>
   );
-};
+}
 
 export async function getServerSideProps({ params }) {
   return { props: { params } };
 }
 
-export default dynamic(Promise.resolve(Order), { ssr: false });
+export default dynamic(() => Promise.resolve(Order), { ssr: false });

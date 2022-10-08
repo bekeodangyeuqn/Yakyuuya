@@ -24,7 +24,7 @@ import dynamic from "next/dynamic";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const CartScreen = () => {
+function CartScreen() {
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
   const {
@@ -152,6 +152,6 @@ const CartScreen = () => {
       )}
     </Layout>
   );
-};
+}
 
-export default dynamic(Promise.resolve(CartScreen), { ssr: false });
+export default dynamic(() => Promise.resolve(CartScreen), { ssr: false });

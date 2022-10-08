@@ -36,7 +36,7 @@ const reducer = (state, action) => {
   }
 };
 
-const OrderHistory = () => {
+function OrderHistory() {
   const { state } = useContext(Store);
   const { userInfo } = state;
   const classes = useStyles();
@@ -141,6 +141,6 @@ const OrderHistory = () => {
       </Grid>
     </Layout>
   );
-};
+}
 
-export default dynamic(Promise.resolve(OrderHistory), { ssr: false });
+export default dynamic(() => Promise.resolve(OrderHistory), { ssr: false });

@@ -35,22 +35,6 @@ const ProductScreen = (props) => {
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState([]);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  if (!product) {
-    return <h1>Product not found</h1>;
-  }
-  const addToCartHandler = async () => {
-    const existItem = state.cart.cartItems.find(
-      (item) => item._id === product._id
-    );
-    const quantity = existItem ? existItem.quantity + 1 : 1;
-    const { data } = await axios.get(`/api/products/${product._id}`);
-    if (data.countInStock < quantity) {
-      window.alert("Product not available");
-      return;
-    }
-    dispatch({ type: "ADD_CART_ITEM", payload: { ...product, quantity } });
-    router.push("/cart");
-  };
   const submitHandler = async (e) => {
     e.preventDefault();
     closeSnackbar();
@@ -86,6 +70,22 @@ const ProductScreen = (props) => {
   useEffect(() => {
     fetchReviews();
   }, []);
+  if (!product) {
+    return <h1>Product not found</h1>;
+  }
+  const addToCartHandler = async () => {
+    const existItem = state.cart.cartItems.find(
+      (item) => item._id === product._id
+    );
+    const quantity = existItem ? existItem.quantity + 1 : 1;
+    const { data } = await axios.get(`/api/products/${product._id}`);
+    if (data.countInStock < quantity) {
+      window.alert("Product not available");
+      return;
+    }
+    dispatch({ type: "ADD_CART_ITEM", payload: { ...product, quantity } });
+    router.push("/cart");
+  };
   return (
     <Layout title={product.name} description={product.description}>
       <div className={classes.section}>

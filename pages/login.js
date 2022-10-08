@@ -124,7 +124,7 @@ const Login = () => {
             </Button>
           </ListItem>
           <ListItem>
-            Don't have an account?{" "}
+            Don&apos; have an account? &nbsp;
             <NextLink href={`/register?redirect=${redirect || "/"}`} passHref>
               <Link>Go register</Link>
             </NextLink>

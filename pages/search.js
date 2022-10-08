@@ -19,6 +19,7 @@ import Product from "../model/Product";
 import ProductItem from "../components/ProductItem";
 import { Pagination } from "@material-ui/lab";
 import CancelIcon from "@material-ui/icons/Cancel";
+import axios from "axios";
 
 const PAGE_SIZE = 5;
 const ratings = [1, 2, 3, 4, 5];

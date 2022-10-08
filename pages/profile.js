@@ -21,7 +21,7 @@ import Nextlink from "next/link";
 import dynamic from "next/dynamic";
 import Cookies from "js-cookie";
 
-const Profile = () => {
+function Profile() {
   const classes = useStyles();
   const { state, dispatch } = useContext(Store);
   const { userInfo } = state;
@@ -237,6 +237,6 @@ const Profile = () => {
       </Grid>
     </Layout>
   );
-};
+}
 
-export default dynamic(Promise.resolve(Profile), { ssr: false });
+export default dynamic(() => Promise.resolve(Profile), { ssr: false });

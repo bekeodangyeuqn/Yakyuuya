@@ -28,7 +28,7 @@ import { getError } from "../utils/error";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const OrderScreen = () => {
+function OrderScreen() {
   const classes = useStyles();
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
@@ -265,6 +265,6 @@ const OrderScreen = () => {
       </Grid>
     </Layout>
   );
-};
+}
 
-export default dynamic(Promise.resolve(OrderScreen), { ssr: false });
+export default dynamic(() => Promise.resolve(OrderScreen), { ssr: false });

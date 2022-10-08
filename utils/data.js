@@ -1,0 +1,82 @@
+import bcrypt from "bcryptjs";
+
+const data = {
+  users: [
+    {
+      name: "John",
+      email: "admin@example.com",
+      password: bcrypt.hashSync("123456"),
+      isAdmin: true,
+    },
+    {
+      name: "Smith",
+      email: "user@example.com",
+      password: bcrypt.hashSync("123456"),
+      isAdmin: false,
+    },
+  ],
+  products: [
+    {
+      name: "Glove 1",
+      slug: "glove-1",
+      category: "Glove",
+      image: "/images/glove1.jpg",
+      brand: "Rawlings",
+      price: 1000,
+      rating: 4.5,
+      countInStock: 20,
+      numReviews: 10,
+      description: "Super glove for everyone",
+    },
+    {
+      name: "Glove 2",
+      slug: "glove-2",
+      category: "Glove",
+      image: "/images/glove1.jpg",
+      brand: "Rawlings",
+      price: 1000,
+      rating: 4.5,
+      countInStock: 20,
+      numReviews: 10,
+      description: "Super glove for everyone",
+    },
+    {
+      name: "Glove 3",
+      slug: "glove-3",
+      category: "Glove",
+      image: "/images/glove1.jpg",
+      brand: "Rawlings",
+      price: 1000,
+      rating: 4.5,
+      countInStock: 20,
+      numReviews: 10,
+      description: "Super glove for everyone",
+    },
+    {
+      name: "Glove 4",
+      slug: "glove-4",
+      category: "Glove",
+      image: "/images/glove1.jpg",
+      brand: "Rawlings",
+      price: 1000,
+      rating: 4.5,
+      countInStock: 20,
+      numReviews: 10,
+      description: "Super glove for everyone",
+    },
+    {
+      name: "Glove 5",
+      slug: "glove-5",
+      category: "Glove",
+      image: "/images/glove1.jpg",
+      brand: "Rawlings",
+      price: 1000,
+      rating: 4.5,
+      countInStock: 20,
+      numReviews: 10,
+      description: "Super glove for everyone",
+    },
+  ],
+};
+
+export default data;

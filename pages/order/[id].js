@@ -25,7 +25,6 @@ import { getError } from "../../utils/error";
 import axios from "axios";
 import { usePayPalScriptReducer, PayPalButtons } from "@paypal/react-paypal-js";
 import { useSnackbar } from "notistack";
-import Promise from "Promise";
 
 const reducer = (state, action) => {
   switch (action.type) {

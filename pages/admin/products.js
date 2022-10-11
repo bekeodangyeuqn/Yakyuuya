@@ -1,26 +1,26 @@
 import { useRouter } from "next/router";
-import React, { useContext, useEffect, useReducer } from "react";
-import Layout from "../../components/Layout";
-import { getError } from "../../utils/error";
+import React, { useContext, useReducer, useEffect } from "react";
+import useStyle from "../../utils/styles";
 import { Store } from "../../utils/Store";
-import useStyles from "../../utils/styles";
+import Layout from "../../components/Layout";
 import NextLink from "next/link";
+import { getError } from "../../utils/error";
 import axios from "axios";
 import {
+  Card,
   CircularProgress,
   Grid,
-  List,
   ListItem,
-  Typography,
-  Card,
-  Button,
-  ListItemText,
-  TableContainer,
   Table,
+  TableContainer,
   TableHead,
   TableRow,
+  Typography,
+  ListItemText,
   TableCell,
+  List,
   TableBody,
+  Button,
 } from "@material-ui/core";
 import dynamic from "next/dynamic";
 
@@ -29,25 +29,23 @@ function reducer(state, action) {
     case "FETCH_REQUEST":
       return { ...state, loading: true, error: "" };
     case "FETCH_SUCCESS":
-      return { ...state, loading: false, error: "", orders: action.payload };
+      return { ...state, loading: false, error: "", products: action.payload };
     case "FETCH_ERROR":
       return { ...state, loading: false, error: action.payload };
     default:
       state;
   }
 }
-
-const AdminOrders = () => {
-  const classes = useStyles();
+const AdminProducts = () => {
+  const classes = useStyle();
   const router = useRouter();
   const { state } = useContext(Store);
   const { userInfo } = state;
-  const [{ loading, error, orders }, dispatch] = useReducer(reducer, {
+  const [{ loading, error, products }, dispatch] = useReducer(reducer, {
     loading: true,
     error: "",
-    orders: [],
+    products: [],
   });
-
   useEffect(() => {
     if (!userInfo) {
       router.push("/login");
@@ -55,7 +53,7 @@ const AdminOrders = () => {
     const fetchData = async () => {
       try {
         dispatch({ type: "FETCH_REQUEST" });
-        const { data } = await axios.get("/api/admin/orders", {
+        const { data } = await axios.get("/api/admin/products", {
           headers: {
             authorization: `Bearer ${userInfo.token}`,
           },
@@ -68,7 +66,7 @@ const AdminOrders = () => {
     fetchData();
   }, []);
   return (
-    <Layout title="Admin Orders">
+    <Layout title="Admin products">
       <Grid container spacing={1}>
         <Grid item md={3} xs={12}>
           <Card className={classes.section}>
@@ -79,12 +77,12 @@ const AdminOrders = () => {
                 </ListItem>
               </NextLink>
               <NextLink href="/admin/orders" passHref>
-                <ListItem selected button component="a">
+                <ListItem button component="a">
                   <ListItemText primary="Orders"></ListItemText>
                 </ListItem>
               </NextLink>
               <NextLink href="/admin/products" passHref>
-                <ListItem button component="a">
+                <ListItem selected button component="a">
                   <ListItemText primary="Products"></ListItemText>
                 </ListItem>
               </NextLink>
@@ -92,14 +90,13 @@ const AdminOrders = () => {
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card className={classes.section}>
+          <Card>
             <List>
               <ListItem>
-                <Typography component="h1" variant="h1">
-                  Orders
+                <Typography variant="h1" compoment="h1">
+                  Products
                 </Typography>
               </ListItem>
-
               <ListItem>
                 {loading ? (
                   <CircularProgress />
@@ -111,37 +108,37 @@ const AdminOrders = () => {
                       <TableHead>
                         <TableRow>
                           <TableCell>ID</TableCell>
-                          <TableCell>USER</TableCell>
-                          <TableCell>DATE</TableCell>
-                          <TableCell>TOTAL</TableCell>
-                          <TableCell>PAID</TableCell>
-                          <TableCell>DELIVERED</TableCell>
-                          <TableCell>ACTION</TableCell>
+                          <TableCell>NAME</TableCell>
+                          <TableCell>PRICE</TableCell>
+                          <TableCell>CATEGORY</TableCell>
+                          <TableCell>COUNT</TableCell>
+                          <TableCell>RATING</TableCell>
+                          <TableCell>ACTIONS</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {orders.map((order) => (
-                          <TableRow key={order._id}>
-                            <TableCell>{order._id.substring(20, 24)}</TableCell>
+                        {products.map((product) => (
+                          <TableRow key={product._id}>
                             <TableCell>
-                              {order.user ? order.user.name : "DELETED USER"}
+                              {product._id.substring(20, 24)}
                             </TableCell>
-                            <TableCell>{order.createdAt}</TableCell>
-                            <TableCell>${order.totalPrice}</TableCell>
+                            <TableCell>{product.name}</TableCell>
+                            <TableCell>${product.price}</TableCell>
+                            <TableCell>{product.category}</TableCell>
+                            <TableCell>{product.countInStock}</TableCell>
+                            <TableCell>{product.rating}</TableCell>
                             <TableCell>
-                              {order.isPaid
-                                ? `paid at ${order.paidAt}`
-                                : "not paid"}
-                            </TableCell>
-                            <TableCell>
-                              {order.isDelivered
-                                ? `delivered at ${order.deliveredAt}`
-                                : "not delivered"}
-                            </TableCell>
-                            <TableCell>
-                              <NextLink href={`/order/${order._id}`} passHref>
-                                <Button variant="contained">Details</Button>
-                              </NextLink>
+                              <NextLink
+                                href={`/admin/product/${product._id}`}
+                                passHref
+                              >
+                                <Button size="small" variant="contained">
+                                  Edit
+                                </Button>
+                              </NextLink>{" "}
+                              <Button size="small" variant="contained">
+                                Delete
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -158,4 +155,4 @@ const AdminOrders = () => {
   );
 };
 
-export default dynamic(() => Promise.resolve(AdminOrders), { ssr: false });
+export default dynamic(() => Promise.resolve(AdminProducts), { ssr: false });

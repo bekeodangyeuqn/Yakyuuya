@@ -12,6 +12,7 @@ import {
   TableCell,
   Link,
   CircularProgress,
+  Button,
 } from "@material-ui/core";
 import React, { useContext, useEffect, useReducer } from "react";
 import { Store } from "../../utils/Store";
@@ -34,6 +35,27 @@ const reducer = (state, action) => {
       return { ...state, loading: false, order: action.payload, error: "" };
     case "FETCH_ERROR":
       return { ...state, loading: false, error: action.payload };
+    case "PAY_RESET":
+      return { ...state, loadingPay: false, successPay: false, errorPay: "" };
+    case "PAY_REQUEST":
+      return { ...state, loadingPay: true };
+    case "PAY_SUCCESS":
+      return { ...state, loadingPay: false, successPay: true };
+    case "PAY_ERROR":
+      return { ...state, loadingPay: false, errorPay: action.payload };
+    case "DELIVER_RESET":
+      return {
+        ...state,
+        loadingDeliver: false,
+        successDeliver: false,
+        errorDeliver: "",
+      };
+    case "DELIVER_REQUEST":
+      return { ...state, loadingDeliver: true, errorDeliver: "" };
+    case "DELIVER_SUCCESS":
+      return { ...state, loadingDeliver: false, successDeliver: true };
+    case "DELIVER_ERROR":
+      return { ...state, loadingDeliver: false, errorDeliver: action.payload };
     default:
       state;
   }
@@ -45,14 +67,18 @@ function Order({ params }) {
   const router = useRouter();
   const { state } = useContext(Store);
   const { userInfo } = state;
-  const [{ loading, error, order, successPay }, dispatch] = useReducer(
-    reducer,
-    {
-      loading: true,
-      error: "",
-      order: {},
-    }
-  );
+  console.log(userInfo);
+  const [
+    { loading, error, order, successPay, loadingDeliver, successDeliver },
+    dispatch,
+  ] = useReducer(reducer, {
+    loading: true,
+    error: "",
+    order: {},
+    successPay: false,
+    loadingDeliver: false,
+    successDeliver: false,
+  });
   const {
     shippingAddress,
     paymentMethod,
@@ -85,10 +111,18 @@ function Order({ params }) {
         dispatch({ type: "FETCH_ERROR", payload: getError(e) });
       }
     };
-    if (!order._id || successPay || (order && order._id !== orderId)) {
+    if (
+      !order._id ||
+      successPay ||
+      successDeliver ||
+      (order && order._id !== orderId)
+    ) {
       fetchOrder();
       if (successPay) {
         dispatch({ type: "PAY_RESET" });
+      }
+      if (successDeliver) {
+        dispatch({ type: "DELIVER_RESET" });
       } else {
         const loadPayPalScript = async () => {
           const { data: clientId } = await axios.get("/api/key/paypal", {
@@ -106,7 +140,7 @@ function Order({ params }) {
         loadPayPalScript();
       }
     }
-  }, [order, successPay]);
+  }, [order, successPay, successDeliver]);
   const createOrder = (data, actions) => {
     return actions.order
       .create({
@@ -137,7 +171,7 @@ function Order({ params }) {
         dispatch({ type: "PAY_SUCCESS", payload: data });
         enqueueSnackbar("Order is paid", { variant: "success" });
       } catch (e) {
-        dispatch({ type: "PAY_FAIL", payload: getError(e) });
+        dispatch({ type: "PAY_ERROR", payload: getError(e) });
         enqueueSnackbar(getError(e), { variant: "error" });
       }
     });
@@ -145,6 +179,24 @@ function Order({ params }) {
 
   function onError(err) {
     enqueueSnackbar(getError(err), { variant: "error" });
+  }
+
+  async function deliverOrderHandler() {
+    try {
+      dispatch({ type: "DELIVER_REQUEST" });
+      const { data } = await axios.put(
+        `/api/orders/${order._id}/deliver`,
+        {},
+        {
+          headers: { authorization: `Bearer ${userInfo.token}` },
+        }
+      );
+      dispatch({ type: "DELIVER_SUCCESS", payload: data });
+      enqueueSnackbar("Order is delivered", { variant: "success" });
+    } catch (err) {
+      dispatch({ type: "DELIVER_FAIL", payload: getError(err) });
+      enqueueSnackbar(getError(err), { variant: "error" });
+    }
   }
 
   return (
@@ -242,7 +294,7 @@ function Order({ params }) {
 
                           <TableCell align="right">
                             <Typography>
-                              {item.price * item.quantity}vnd
+                              {item.price * item.quantity}usd
                             </Typography>
                           </TableCell>
                         </TableRow>
@@ -269,7 +321,7 @@ function Order({ params }) {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography align="right">
-                      <strong>{itemsPrice} vnd</strong>
+                      <strong>{itemsPrice} usd</strong>
                     </Typography>
                   </Grid>
                 </ListItem>
@@ -281,7 +333,7 @@ function Order({ params }) {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography align="right">
-                      <strong>{taxPrice} vnd</strong>
+                      <strong>{taxPrice} usd</strong>
                     </Typography>
                   </Grid>
                 </ListItem>
@@ -309,19 +361,34 @@ function Order({ params }) {
                     </Typography>
                   </Grid>
                 </ListItem>
-                {!isPaid && (
+                {!isPaid &&
+                  paymentMethod === "paypal" &&
+                  order.user === userInfo._id && (
+                    <ListItem>
+                      {isPending ? (
+                        <CircularProgress />
+                      ) : (
+                        <div className={classes.fullWidth}>
+                          <PayPalButtons
+                            createOrder={createOrder}
+                            onApporve={onApporve}
+                            onError={onError}
+                          ></PayPalButtons>
+                        </div>
+                      )}
+                    </ListItem>
+                  )}
+                {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
                   <ListItem>
-                    {isPending ? (
-                      <CircularProgress />
-                    ) : (
-                      <div className={classes.fullWidth}>
-                        <PayPalButtons
-                          createOrder={createOrder}
-                          onApporve={onApporve}
-                          onError={onError}
-                        ></PayPalButtons>
-                      </div>
-                    )}
+                    {loadingDeliver && <CircularProgress />}
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      onClick={deliverOrderHandler}
+                    >
+                      Deliver Order
+                    </Button>
                   </ListItem>
                 )}
               </List>

@@ -20,6 +20,7 @@ export default function ProductItem({ product, addToCartHandler }) {
             component="img"
             image={product.image}
             title={product.name}
+            height="440"
           ></CardMedia>
           <CardContent>
             <Typography>{product.name}</Typography>

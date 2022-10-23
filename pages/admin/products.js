@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import React, { useContext, useReducer, useEffect } from "react";
 import useStyle from "../../utils/styles";
 import { Store } from "../../utils/Store";
+import { useSnackbar } from "notistack";
 import Layout from "../../components/Layout";
 import NextLink from "next/link";
 import { getError } from "../../utils/error";
@@ -32,6 +33,20 @@ function reducer(state, action) {
       return { ...state, loading: false, error: "", products: action.payload };
     case "FETCH_ERROR":
       return { ...state, loading: false, error: action.payload };
+    case "CREATE_REQUEST":
+      return { ...state, loadingCraete: true };
+    case "CREATE_SUCCESS":
+      return { ...state, loadingCraete: false };
+    case "CREATE_FAIL":
+      return { ...state, loadingCraete: false };
+    case "DELETE_REQUEST":
+      return { ...state, loadingDelete: true };
+    case "DELETE_SUCCESS":
+      return { ...state, loadingDelete: false, successDelete: true };
+    case "DELETE_FAIL":
+      return { ...state, loadingDelete: false };
+    case "DELETE_RESET":
+      return { ...state, loadingDelete: false, successDelete: false };
     default:
       state;
   }
@@ -41,7 +56,10 @@ const AdminProducts = () => {
   const router = useRouter();
   const { state } = useContext(Store);
   const { userInfo } = state;
-  const [{ loading, error, products }, dispatch] = useReducer(reducer, {
+  const [
+    { loading, error, products, loadingCreate, successDelete, loadingDelete },
+    dispatch,
+  ] = useReducer(reducer, {
     loading: true,
     error: "",
     products: [],
@@ -63,8 +81,51 @@ const AdminProducts = () => {
         dispatch({ type: "FETCH_ERROR", payload: getError(e) });
       }
     };
-    fetchData();
-  }, []);
+    if (successDelete) {
+      dispatch({ type: "DELETE_RESET" });
+    } else {
+      fetchData();
+    }
+  }, [successDelete]);
+
+  const { enqueueSnackbar } = useSnackbar();
+  const createHandler = async () => {
+    if (!window.confirm("Are you sure?")) {
+      return;
+    }
+    try {
+      dispatch({ type: "CREATE_REQUEST" });
+      const { data } = await axios.post(
+        `/api/admin/products`,
+        {},
+        {
+          headers: { authorization: `Bearer ${userInfo.token}` },
+        }
+      );
+      dispatch({ type: "CREATE_SUCCESS" });
+      enqueueSnackbar("Product created successfully", { variant: "success" });
+      router.push(`/admin/product/${data.product._id}`);
+    } catch (e) {
+      dispatch({ type: "CREATE_FAIL" });
+      enqueueSnackbar(getError(e), { variant: "error" });
+    }
+  };
+  const deleteHandler = async (productId) => {
+    if (!window.confirm("Are you sure?")) {
+      return;
+    }
+    try {
+      dispatch({ type: "DELETE_REQUEST" });
+      await axios.delete(`/api/admin/products/${productId}`, {
+        headers: { authorization: `Bearer ${userInfo.token}` },
+      });
+      dispatch({ type: "DELETE_SUCCESS" });
+      enqueueSnackbar("Product deleted successfully", { variant: "success" });
+    } catch (e) {
+      dispatch({ type: "DELETE_FAIL" });
+      enqueueSnackbar(getError(e), { variant: "error" });
+    }
+  };
   return (
     <Layout title="Admin products">
       <Grid container spacing={1}>
@@ -90,12 +151,27 @@ const AdminProducts = () => {
           </Card>
         </Grid>
         <Grid item md={9} xs={12}>
-          <Card>
+          <Card className={classes.section}>
             <List>
               <ListItem>
-                <Typography variant="h1" compoment="h1">
-                  Products
-                </Typography>
+                <Grid container alignItems="center">
+                  <Grid item xs={6}>
+                    <Typography component="h1" variant="h1">
+                      Products
+                    </Typography>
+                    {loadingDelete && <CircularProgress />}
+                  </Grid>
+                  <Grid align="right" item xs={6}>
+                    <Button
+                      onClick={createHandler}
+                      color="primary"
+                      variant="contained"
+                    >
+                      Create
+                    </Button>
+                    {loadingCreate && <CircularProgress />}
+                  </Grid>
+                </Grid>
               </ListItem>
               <ListItem>
                 {loading ? (
@@ -136,7 +212,11 @@ const AdminProducts = () => {
                                   Edit
                                 </Button>
                               </NextLink>{" "}
-                              <Button size="small" variant="contained">
+                              <Button
+                                onClick={() => deleteHandler(product._id)}
+                                size="small"
+                                variant="contained"
+                              >
                                 Delete
                               </Button>
                             </TableCell>

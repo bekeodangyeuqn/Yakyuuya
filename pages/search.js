@@ -21,7 +21,7 @@ import { Pagination } from "@material-ui/lab";
 import CancelIcon from "@material-ui/icons/Cancel";
 import axios from "axios";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 3;
 const ratings = [1, 2, 3, 4, 5];
 const prices = [
   {
@@ -85,7 +85,7 @@ const Search = (props) => {
     filterSearch({ category: e.target.value });
   };
 
-  const pageHandler = (page) => {
+  const pageHandler = (e, page) => {
     filterSearch({ page });
   };
 

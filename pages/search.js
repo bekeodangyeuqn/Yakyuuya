@@ -81,11 +81,11 @@ const Search = (props) => {
     });
   };
 
-  const categoryHandler = ({ e }) => {
+  const categoryHandler = (e) => {
     filterSearch({ category: e.target.value });
   };
 
-  const pageHandler = ({ page }) => {
+  const pageHandler = (page) => {
     filterSearch({ page });
   };
 

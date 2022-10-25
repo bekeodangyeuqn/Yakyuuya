@@ -167,7 +167,7 @@ function OrderScreen() {
 
                         <TableCell align="right">
                           <Typography>
-                            {item.price * item.quantity}vnd
+                            {item.price * item.quantity}usd
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -194,7 +194,7 @@ function OrderScreen() {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography align="right">
-                    <strong>{itemsPrice} vnd</strong>
+                    <strong>{itemsPrice} usd</strong>
                   </Typography>
                 </Grid>
               </ListItem>
@@ -206,7 +206,7 @@ function OrderScreen() {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography align="right">
-                    <strong>{taxPrice} vnd</strong>
+                    <strong>{taxPrice} usd</strong>
                   </Typography>
                 </Grid>
               </ListItem>
@@ -218,7 +218,7 @@ function OrderScreen() {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography align="right">
-                    <strong>{shippingPrice} vnd</strong>
+                    <strong>{shippingPrice} usd</strong>
                   </Typography>
                 </Grid>
               </ListItem>
@@ -230,7 +230,7 @@ function OrderScreen() {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography align="right">
-                    <strong>{totalPrice} vnd</strong>
+                    <strong>{totalPrice} usd</strong>
                   </Typography>
                 </Grid>
               </ListItem>

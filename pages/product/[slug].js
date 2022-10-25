@@ -127,7 +127,8 @@ const ProductScreen = (props) => {
             </ListItem>
             <ListItem>
               <Typography>
-                Rating: {product.rating} stars ({product.numReviews} reviews)
+                Rating: {Math.round(product.rating * 100) / 100} stars (
+                {product.numReviews} reviews)
               </Typography>
             </ListItem>
             <ListItem>

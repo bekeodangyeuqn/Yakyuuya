@@ -216,6 +216,7 @@ const AdminProducts = () => {
                                 onClick={() => deleteHandler(product._id)}
                                 size="small"
                                 variant="contained"
+                                className={classes.mt5}
                               >
                                 Delete
                               </Button>
